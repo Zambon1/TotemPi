@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS tasks (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(64) NOT NULL,
+    completed BOOLEAN DEFAULT FALSE,
+    project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
