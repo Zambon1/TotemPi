@@ -1,12 +1,9 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router";
-
 function Home() {
 
     return (
         <>
         <div className="home-container">
-            <h1>Welcome to the Home Page</h1>
+            <h1>Home</h1>
         </div>
         </>
     );
