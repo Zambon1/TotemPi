@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import TaskForm from "../components/TaskForm";
 
 function Tasks() {
     const [tasks, setTasks] = useState([]);
@@ -18,7 +19,7 @@ function Tasks() {
             setError("");
 
             try {
-                const res = await fetch("/api/task?all=true");
+                const res = await fetch("/api/tasks?all=true");
                 const data = await res.join();
 
                 if (cancelled) {
@@ -65,7 +66,7 @@ function Tasks() {
         setError("");
 
         try {
-            const res = await fetch("/api/task", {
+            const res = await fetch("/api/tasks", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -96,4 +97,113 @@ function Tasks() {
             setSaving(false);
         }
     }
+
+    async function handleToggleComplete(task) {
+        setSaving(true);
+        setError("");
+
+        try {
+            const nextCompleted = !task.completed;
+            const res = await fetch("/api/tasks", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: task.id,
+                    name: task.name,
+                    completed: nextCompleted,
+                }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || "Unable to update task status.");
+            }
+
+            setTasks((currentTasks) => 
+                currentTasks.map((currentTask) => (currentTask.id === data.task.id ? data.task : currentTask))
+            );
+
+            if (editingId === data.task.id) {
+                setCompleted(data.task.completed);
+            }
+        } catch (requestError) {
+            setError(requestError.message);
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    async function handleDelete(taskId) {
+        setSaving(true);
+        setError("");
+
+        try {
+            const res = await fetch(`api/tasks/${taskId}`, {
+                method: "DELETE"
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || "Unable to delete task.");
+            }
+
+            setTasks((currentTasks) => currentTasks.filter((task) => task.id !== taskId));
+            if (editingId === taskId) {
+                resetForm();
+            }
+        } catch (requestError) {
+            setError(requestError.message);
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (
+        <section className="task-page">
+            <div className="page-header">
+                <div>
+                    <h1>Tasks</h1>
+                </div>
+            </div>
+
+            {error && <p className="error-message">{error}</p>}
+
+            <div className="task-layout">
+                <section className="detail-card">
+                    <div className="section-heading">
+                        <h2>{editingId ? "Edit task" : "Add task"}</h2>
+                    </div>
+                    <TaskForm
+                        name={name}
+                        setName={setName}
+                        onSubmit={handleSubmit}
+                        submitLabel={editingId ? "Save changes" : "Add task"}
+                        error={""}
+                        loading={saving}
+                    />
+                    {editingId && (
+                        <button className="btn task-cancel-button" onClick={resetForm}>
+                            Cancel edit
+                        </button>
+                    )}
+                </section>
+
+                <section className="detail-card">
+                    <div className="section-heading">
+                        <h2>All tasks</h2>
+                    </div>
+
+                    {loading ? (
+                        <p className="info-message">Loading tasks...</p>
+                    ) : tasks.length === 0 ? (
+                        <p className="info-message">No active tasks</p>
+                    ) : (
+                        <div className="task-list"></div>
+                    )
+                    }
+                </section>
+
+            </div>
+        </section>
+    )
 }
