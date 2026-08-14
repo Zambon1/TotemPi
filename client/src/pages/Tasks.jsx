@@ -49,14 +49,12 @@ function Tasks() {
     function resetForm() {
         setEditingId(null);
         setName("");
-        setDescription("");
         setCompleted(false);
     }
 
     function startEdit(task) {
         setEditingId(task.id);
         setName(task.name);
-        setDescription(task.description || "");
         setCompleted(Boolean(task.completed));
     }
 
@@ -72,7 +70,6 @@ function Tasks() {
                 body: JSON.stringify({
                     id: editingId,
                     name,
-                    description,
                     completed
                 }),
             });
@@ -198,12 +195,37 @@ function Tasks() {
                     ) : tasks.length === 0 ? (
                         <p className="info-message">No active tasks</p>
                     ) : (
-                        <div className="task-list"></div>
+                        <div className="task-list">
+                            {tasks.map((task) => (
+                                <article className="task-item" key={task.id}>
+                                    <div>
+                                        <h3>{task.name}</h3>
+                                    </div>
+                                    <div className="task-actions">
+                                        <button
+                                            type="button"
+                                            className="status-pill task-status-pill"
+                                            onClick={() => handleToggleComplete(task)}
+                                            disabled={saving}
+                                            >
+                                                {task.completed ? "Done" : "Not done"}
+                                        </button>
+                                        <button className="btn btn-primary" onClick={() => startEdit(task)}>
+                                            Edit
+                                        </button>
+                                        <button className="btn btn-danger" onClick={() => handleDelete(task.id)}>
+                                            Delete
+                                        </button>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
                     )
                     }
                 </section>
-
             </div>
         </section>
     )
 }
+
+export default Tasks;

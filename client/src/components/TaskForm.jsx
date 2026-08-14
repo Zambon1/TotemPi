@@ -1,9 +1,10 @@
 function TaskForm({
     title,
-    setTitle,
+    setName,
     completed,
     setCompleted,
     onSubmit,
+    submitLabel,
     error,
     loading
 }) {
@@ -16,7 +17,8 @@ function TaskForm({
                     id="task-title"
                     type="text"
                     value={name}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => setName(e.target.value)}
+                    required
                 />
             </div>
             <button type="submit" className="btn btn-primary" disabled={loading}>
