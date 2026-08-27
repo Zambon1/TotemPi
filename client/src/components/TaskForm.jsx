@@ -16,7 +16,7 @@ function TaskForm({
                 <input
                     id="task-title"
                     type="text"
-                    value={name}
+                    value={title}
                     onChange={(e) => setName(e.target.value)}
                     required
                 />
